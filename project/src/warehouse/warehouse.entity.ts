@@ -17,6 +17,9 @@ export class Warehouse {
   @Column()
   limit: number
 
+  @Column()
+  procesed_packages: number
+
   @OneToMany(type => Package, p => p.warehouse)
   packages: Package [];
 }

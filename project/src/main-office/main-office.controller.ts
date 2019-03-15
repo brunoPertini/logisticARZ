@@ -1,8 +1,9 @@
-import { Controller, Get } from '@nestjs/common';
-
+import { Controller, Get, Param } from '@nestjs/common';
+import { MainOfficeService } from './main-office.service';
 @Controller('main-office')
 export class MainOfficeController {
 
+    constructor(private readonly officeService: MainOfficeService) {}
     
     @Get()
     send_package() {
@@ -14,8 +15,8 @@ export class MainOfficeController {
       return 'hello!';
     }
 
-    @Get()
-    warehouse_state() {
-      return 'hello!';
+    @Get('warehouse/state:id')
+    warehouse_state(@Param('id') id) {
+      return this.officeService.warehouse_state(id);  
     }
 }
