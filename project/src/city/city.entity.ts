@@ -5,6 +5,7 @@ export class City {
   @PrimaryColumn()
   name: string;
 
-  @Column()
-  coordinates: string;
+  constructor(name:string) {
+      this.name = name;
+  }
 }
