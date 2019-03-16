@@ -32,27 +32,27 @@ import { Package } from './package/package.entity';
 export class AppModule {
   constructor(private readonly connection: Connection) {
     // //Initial data of cities and warehouses
-    // const queryBuilder = connection.createQueryBuilder();  
-    // var cities = this.initializeCities(connection);
+    const queryBuilder = connection.createQueryBuilder();  
+    var cities = this.initializeCities(connection);
 
-    //  queryBuilder
-    //  .insert()
-    //  .into(Warehouse)
-    //  .values(
-    //    [
-    //      {id:"WH01", city: cities[0], limit:200},
-    //      {id:"WH02", city: cities[1], limit:70},
-    //      {id:"WH03", city: cities[2], limit:150},
-    //      {id:"WH04", city: cities[3], limit:140},
-    //      {id:"WH05", city: cities[4], limit:150},
-    //      {id:"WH06", city: cities[5], limit:100},
-    //      {id:"WH07", city: cities[6], limit:120},
-    //      {id:"WH08", city: cities[7], limit:180},
-    //      {id:"WH09", city: cities[8], limit:140},
-    //      {id:"WH10", city: cities[9], limit:70},
-    //    ]
-    //  )
-    //  .execute();
+     queryBuilder
+     .insert()
+     .into(Warehouse)
+     .values(
+       [
+         {id:"WH01", city: cities[0], limit:200},
+         {id:"WH02", city: cities[1], limit:70},
+         {id:"WH03", city: cities[2], limit:150},
+         {id:"WH04", city: cities[3], limit:140},
+         {id:"WH05", city: cities[4], limit:150},
+         {id:"WH06", city: cities[5], limit:100},
+         {id:"WH07", city: cities[6], limit:120},
+         {id:"WH08", city: cities[7], limit:180},
+         {id:"WH09", city: cities[8], limit:140},
+         {id:"WH10", city: cities[9], limit:70},
+       ]
+     )
+     .execute();
   }
 
    private initializeCities(connection: Connection) {
