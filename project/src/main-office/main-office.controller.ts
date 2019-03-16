@@ -19,8 +19,8 @@ export class MainOfficeController {
     }
 
     @Get('warehouse/state/:id')
-    warehouse_state(@Param() params) {
-      return this.officeService.warehouse_state(params.id);  
+    warehouse_overloaded(@Param() params) {
+      return this.officeService.warehouse_overloaded(params.id);  
     }
 
     @Get('/warehouse/cities')

@@ -14,10 +14,12 @@ export class MainOfficeService {
   /**
    * 
    * @param id
-   * @returns the percentage of procesed packages in the day
+   * @returns if the percentage of procesed packages is greater or equal than 0.95
    */  
-  warehouse_state(id:string) {
-    return this.warehouseService.warehouse_state(id);  
+  warehouse_overloaded(id:string) {
+    return this.warehouseService.warehouse_state(id). then (result => {
+        return result >=100;
+    });  
   }
 
   warehouses_cities() {
@@ -28,7 +30,7 @@ export class MainOfficeService {
    * FIXME: as this is returning an empty array as result, despite inside matrix callback function the
    * result array has the expected data, this array will return mocked data.
    * @param cityName 
-   * @returns a list of the closest warehouses to the given city, each one with it's distance. 
+   * @returns a list of the closest warehouses cities to the given city.
    */
   async closests_warehouses_for_city(cityName:string) {
     var distance = require('google-distance-matrix');
@@ -74,18 +76,9 @@ export class MainOfficeService {
     //     }
     // });
     
-    resultArray = [
-        {"city":"Salta","distance":196.52},
-        {"city":"San Miguel de Tucumán","distance":228.113},
-        {"city":"Córdoba, Argentina","distance":705.759},
-        {"city":"Santa Fe, Argentina","distance":950.308},
-        {"city":"Mendoza","distance":1064.777},
-        {"city":"Rosario","distance":1102.687},
-        {"city":"Buenos Aires","distance":1393.983},
-        {"city":"La Plata","distance":1451.995},
-        {"city":"Mar del Plata","distance":1805.552},
-        {"city":"Trelew","distance":2148.311}
-    ];
+    resultArray = ["Salta","San Miguel de Tucumán","Córdoba, Argentina",
+        "Santa Fe, Argentina", "Mendoza","Rosario","Buenos Aires",
+        "La Plata","Mar del Plata","Trelew"];
     return resultArray;
   }
 }
