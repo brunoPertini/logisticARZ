@@ -1,22 +1,31 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Dependencies } from '@nestjs/common';
 import { MainOfficeService } from './main-office.service';
 @Controller('main-office')
+@Dependencies(MainOfficeService)
 export class MainOfficeController {
 
-    constructor(private readonly officeService: MainOfficeService) {}
+    constructor(private readonly officeService: MainOfficeService) {
+      this.officeService = officeService;
+    }
     
     @Get()
     send_package() {
       return 'hello!';
     }
 
-    @Get()
-    package_state() {
-      return 'hello!';
+    @Get('warehouse/distance/:cityName')
+    closest_warehouse(@Param() params) {
+      return this.officeService.closests_warehouses_for_city(params.cityName);
     }
 
-    @Get('warehouse/state:id')
-    warehouse_state(@Param('id') id) {
-      return this.officeService.warehouse_state(id);  
+    @Get('warehouse/state/:id')
+    warehouse_state(@Param() params) {
+      return this.officeService.warehouse_state(params.id);  
     }
+
+    @Get('/warehouse/cities')
+    warehouses_cities() {
+      return this.officeService.warehouses_cities();
+    }
+
 }

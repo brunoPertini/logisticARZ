@@ -1,14 +1,16 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Injectable, Dependencies } from "@nestjs/common";
+import { Repository, Connection } from 'typeorm';
 import { Warehouse } from './warehouse.entity';
-import { WarehouseRepository } from "./warehouse.repository";
+
 
 @Injectable()
 export class WarehouseService {
 
-    constructor(@InjectRepository(Warehouse)
-    private readonly repository: Repository<Warehouse>) {}
+    private repository: Repository<Warehouse>;
+
+    constructor(private readonly connection: Connection) {
+        this.repository = connection.getRepository(Warehouse);
+    }
 
     /**
      * 
@@ -16,11 +18,22 @@ export class WarehouseService {
      * @returns the percentage of procesed packages in the day
     */  
     async warehouse_state(id:string) {
-        const warehouse = await this.repository.findOne({id:id});
+        const warehouse = await this.repository.findOne(id);
         if(warehouse) {
             return warehouse.procesed_packages/warehouse.limit;
         } else {
             return 0;
         }
+    }
+
+    /**
+     * @returns  all warehouses cities names
+     */
+    async warehouses_cities() {
+        var cities = await this.repository
+        .createQueryBuilder("w")
+        .select("w.cityName")
+        .getRawMany();
+        return cities;
     }
 }

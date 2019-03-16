@@ -10,39 +10,49 @@ import { Warehouse } from "../src/warehouse/warehouse.entity";
 import { City } from "../src/city/city.entity";
 import { WarehouseModule } from './warehouse/warehouse.module';
 import { MainOfficeModule } from './main-office/main-office.module';
-
-export const apiKey = "AIzaSyByN4uVJHXTirIP8d5qjJWFxgw1uygWAsw";
+import { Package } from './package/package.entity';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(), PackageModule, CityModule, WarehouseModule,
+  imports: [TypeOrmModule.forRoot(
+    {
+      type: 'mysql',
+      host: "localhost",
+      port: 3306,
+      username: "root",
+      password: "",
+      database: "logistic",
+      entities: ["src/**/**.entity{.ts,.js}"],
+      synchronize: true,
+    }
+  ), WarehouseModule, PackageModule, CityModule,
             MainOfficeModule],
   controllers: [AppController, MainOfficeController],
   providers: [AppService],
 })
 export class AppModule {
   constructor(private readonly connection: Connection) {
-    //Initial data of cities and warehouses
-    const queryBuilder = connection.createQueryBuilder();  
-    var cities = this.initializeCities(connection);
+    // //Initial data of cities and warehouses
+    // const queryBuilder = connection.createQueryBuilder();  
+    // var cities = this.initializeCities(connection);
 
-     queryBuilder
-     .insert()
-     .into(Warehouse)
-     .values(
-       [
-         {id:"WH01", city: cities[0], limit:200},
-         {id:"WH02", city: cities[1], limit:70},
-         {id:"WH03", city: cities[2], limit:150},
-         {id:"WH04", city: cities[3], limit:140},
-         {id:"WH05", city: cities[4], limit:150},
-         {id:"WH06", city: cities[5], limit:100},
-         {id:"WH07", city: cities[6], limit:120},
-         {id:"WH08", city: cities[7], limit:180},
-         {id:"WH09", city: cities[8], limit:140},
-         {id:"WH10", city: cities[9], limit:70},
-       ]
-     )
-     .execute();
+    //  queryBuilder
+    //  .insert()
+    //  .into(Warehouse)
+    //  .values(
+    //    [
+    //      {id:"WH01", city: cities[0], limit:200},
+    //      {id:"WH02", city: cities[1], limit:70},
+    //      {id:"WH03", city: cities[2], limit:150},
+    //      {id:"WH04", city: cities[3], limit:140},
+    //      {id:"WH05", city: cities[4], limit:150},
+    //      {id:"WH06", city: cities[5], limit:100},
+    //      {id:"WH07", city: cities[6], limit:120},
+    //      {id:"WH08", city: cities[7], limit:180},
+    //      {id:"WH09", city: cities[8], limit:140},
+    //      {id:"WH10", city: cities[9], limit:70},
+    //    ]
+    //  )
+    //  .execute();
   }
 
    private initializeCities(connection: Connection) {
