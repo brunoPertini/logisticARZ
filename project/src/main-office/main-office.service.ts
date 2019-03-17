@@ -1,11 +1,14 @@
 import { Injectable, Dependencies } from '@nestjs/common';
 import { WarehouseService } from '../warehouse/warehouse.service';
+import { strict } from 'assert';
 
 const apiKey = "AIzaSyByN4uVJHXTirIP8d5qjJWFxgw1uygWAsw";
 
 @Injectable()
 @Dependencies(WarehouseService)
 export class MainOfficeService {
+
+    
 
   constructor(private readonly warehouseService: WarehouseService) {
       this.warehouseService = warehouseService;
@@ -30,7 +33,7 @@ export class MainOfficeService {
    * FIXME: as this is returning an empty array as result, despite inside matrix callback function the
    * result array has the expected data, this array will return mocked data.
    * @param cityName 
-   * @returns a list of the closest warehouses cities to the given city.
+   * @returns a list of the closest warehouses cities to the given city, each one with it's distance in kilometers.
    */
   async closests_warehouses_for_city(cityName:string) {
     var distance = require('google-distance-matrix');
@@ -65,7 +68,7 @@ export class MainOfficeService {
     
     //                     resultArray.push( {
     //                         city: key,
-    //                         distance: sortedDistances[i]/1000
+    //                         distance: Math.floor(sortedDistances[i]/1000)
     //                     });
     
     //                     i = i + 1;
@@ -76,9 +79,24 @@ export class MainOfficeService {
     //     }
     // });
     
-    resultArray = ["Salta","San Miguel de Tucumán","Córdoba, Argentina",
-        "Santa Fe, Argentina", "Mendoza","Rosario","Buenos Aires",
-        "La Plata","Mar del Plata","Trelew"];
+    resultArray = [
+        {"city":"Salta","distance":196},
+        {"city":"San Miguel de Tucumán","distance":228},
+        {"city":"Córdoba, Argentina","distance":705.},
+        {"city":"Santa Fe, Argentina","distance":950},
+        {"city":"Mendoza","distance":1064},
+        {"city":"Rosario","distance":1102},
+        {"city":"Buenos Aires","distance":1393},
+        {"city":"La Plata","distance":1451},
+        {"city":"Mar del Plata","distance":1805},
+        {"city":"Trelew","distance":2148}
+    ];
     return resultArray;
+  }
+
+  async send_package_to_city(cityName: string) {
+    var cities = await this.closests_warehouses_for_city(cityName);
+
+
   }
 }

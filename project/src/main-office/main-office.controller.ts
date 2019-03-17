@@ -1,5 +1,6 @@
-import { Controller, Get, Param, Dependencies } from '@nestjs/common';
+import { Controller, Get, Post, Param, Dependencies, Body } from '@nestjs/common';
 import { MainOfficeService } from './main-office.service';
+import { PackageResponseDTO } from 'src/package/package_response.dto';
 @Controller('main-office')
 @Dependencies(MainOfficeService)
 export class MainOfficeController {
@@ -8,8 +9,8 @@ export class MainOfficeController {
       this.officeService = officeService;
     }
     
-    @Get()
-    send_package() {
+    @Post()
+    send_package_to_city(@Body()city: string): PackageResponseDTO {
       return 'hello!';
     }
 
