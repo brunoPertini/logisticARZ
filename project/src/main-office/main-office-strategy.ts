@@ -12,27 +12,44 @@ export abstract class SendingStrategy {
         this.warehouseService = warehouseService;    
     }
 
-    abstract send_package_from_nearest(warehouses: Array<string>, destiny: string, distance: number)
+    /**
+     * 
+     * @param warehouses closest warehouses cities to the destiny with their distance
+     * @param destiny destiny city name
+     */
+    abstract send_package_from_nearest(warehouses: Array<any>, destiny: string)
     : PackageResponseDTO;
 }
+
 
 /**
  * At this implementation, package will be sent to the nearest warehouse, no mather if
  * it is overloaded.
  */
 export class DelayedStrategy extends SendingStrategy {
-    send_package_from_nearest(warehouses: Array<string>, destiny: string, distance: number) 
+    send_package_from_nearest(warehouses: Array<any>, destiny: string) 
     : PackageResponseDTO{
-        return this.warehouseService.perform_package_sending(warehouses[0],destiny,distance);   
+        return this.warehouseService.perform_package_sending(warehouses[0].cityName,destiny,
+            warehouses[0].distance);   
     }
 }
+
 
 /**
  * At this implementation, package will be sent from the first nearest not overloaded warehouse. 
  */
 export class OntimeStrategy extends SendingStrategy {
-    // send_package_from_nearest(warehouses: Array<string>, destiny: string, distance: number) 
-    // : PackageResponseDTO{
-    //     warehouses.forEach()  
-    // }    
+    send_package_from_nearest(warehouses: Array<any>, destiny: string) 
+    : PackageResponseDTO{
+        warehouses.forEach(w => {
+            this.warehouseService.warehouse_of_city(w).then (warehouse => {
+                var overloaded = this.warehouseService.warehouse_overloaded(warehouse.id);
+                if(!overloaded) {
+                    return this.warehouseService.perform_package_sending(w.cityName,
+                        destiny,w.distance);
+                }   
+            });
+        });         
+        return null
+    }    
 }
