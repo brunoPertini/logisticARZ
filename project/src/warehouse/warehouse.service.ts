@@ -44,6 +44,15 @@ export class WarehouseService {
     }
 
     /**
+     * 
+     * @param id 
+     * @returns if the warehouse is overloaded. 
+     */
+    async warehouse_overloaded(id:string) {
+        return await this.warehouse_state(id) >= 100;
+    }
+
+    /**
      * @returns  all warehouses cities names
      */
     async warehouses_cities() {
@@ -76,7 +85,7 @@ export class WarehouseService {
     /**
      * It persists a new package to be sent from given warehouse city. If  warehouse is overloaded,
      * this function'll return a PackageDelayedSentDTO. If not, it'll return a PackageOnTimeSent.
-     * @param warehouse_city : origin from wherem the package will be sent
+     * @param warehouse_city : origin from where the package will be sent
      * @param distance: distance in km to the destiny
      */
     async perform_package_sending(warehouse_city: string, destiny: string, distance: number) {

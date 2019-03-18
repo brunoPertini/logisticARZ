@@ -1,6 +1,7 @@
 import { Injectable, Dependencies } from '@nestjs/common';
 import { WarehouseService } from '../warehouse/warehouse.service';
 import { strict } from 'assert';
+import { OntimeStrategy, SendingStrategy } from './main-office-strategy';
 
 const apiKey = "AIzaSyByN4uVJHXTirIP8d5qjJWFxgw1uygWAsw";
 
@@ -8,10 +9,15 @@ const apiKey = "AIzaSyByN4uVJHXTirIP8d5qjJWFxgw1uygWAsw";
 @Dependencies(WarehouseService)
 export class MainOfficeService {
 
-    
+  private sendingStrategy: SendingStrategy;
 
   constructor(private readonly warehouseService: WarehouseService) {
       this.warehouseService = warehouseService;
+      this.sendingStrategy = new OntimeStrategy(warehouseService);
+  }
+
+  set strategy(newStrategy: SendingStrategy) {
+    this.sendingStrategy = newStrategy;
   }
 
   /**
@@ -80,23 +86,22 @@ export class MainOfficeService {
     // });
     
     resultArray = [
-        {"city":"Salta","distance":196},
-        {"city":"San Miguel de Tucumán","distance":228},
-        {"city":"Córdoba, Argentina","distance":705.},
-        {"city":"Santa Fe, Argentina","distance":950},
-        {"city":"Mendoza","distance":1064},
-        {"city":"Rosario","distance":1102},
-        {"city":"Buenos Aires","distance":1393},
-        {"city":"La Plata","distance":1451},
-        {"city":"Mar del Plata","distance":1805},
-        {"city":"Trelew","distance":2148}
+        {"cityName":"Salta","distance":196},
+        {"cityName":"San Miguel de Tucumán","distance":228},
+        {"cityName":"Córdoba, Argentina","distance":705.},
+        {"cityName":"Santa Fe, Argentina","distance":950},
+        {"cityName":"Mendoza","distance":1064},
+        {"cityName":"Rosario","distance":1102},
+        {"cityName":"Buenos Aires","distance":1393},
+        {"cityName":"La Plata","distance":1451},
+        {"cityName":"Mar del Plata","distance":1805},
+        {"cityName":"Trelew","distance":2148}
     ];
     return resultArray;
   }
 
-  async send_package_to_city(cityName: string) {
-    var cities = await this.closests_warehouses_for_city(cityName);
-
-
+  async send_package_to_city(destiny: string) {
+    var warehousesCities = await this.closests_warehouses_for_city(destiny);
+    return this.sendingStrategy.send_package_from_nearest(warehousesCities,destiny);
   }
 }

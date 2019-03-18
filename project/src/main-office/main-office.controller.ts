@@ -11,7 +11,7 @@ export class MainOfficeController {
     
     @Post()
     send_package_to_city(@Body()city: string): PackageResponseDTO {
-      return 'hello!';
+      return this.officeService.send_package_to_city(city);
     }
 
     @Get('warehouse/distance/:cityName')
