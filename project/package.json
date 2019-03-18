@@ -5,7 +5,7 @@
   "author": "Bruno Pertini",
   "license": "MIT",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "babel-node --presets es2015 && tsc -p tsconfig.build.json",
     "format": "prettier --write \"src/**/*.ts\"",
     "start": "ts-node -r tsconfig-paths/register src/main.ts",
     "start:dev": "nodemon",
@@ -28,7 +28,9 @@
     "rimraf": "^2.6.2",
     "rxjs": "^6.2.2",
     "typeorm": "^0.2.15",
-    "typescript": "^3.0.1"
+    "typescript": "^3.0.1",
+    "babel-cli": "^6.0.0",
+    "babel-preset-es2015": "^6.0.0"
   },
   "devDependencies": {
     "@nestjs/testing": "^5.1.0",
