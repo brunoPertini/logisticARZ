@@ -1,7 +1,8 @@
 import { Injectable, Dependencies } from '@nestjs/common';
 import { WarehouseService } from '../warehouse/warehouse.service';
 import { strict } from 'assert';
-import { OntimeStrategy, SendingStrategy } from './main-office-strategy';
+import { OntimeStrategy, SendingStrategy, DelayedStrategy } from './main-office-strategy';
+import { EventEmitter } from 'events';
 
 const apiKey = "AIzaSyByN4uVJHXTirIP8d5qjJWFxgw1uygWAsw";
 
@@ -10,10 +11,21 @@ const apiKey = "AIzaSyByN4uVJHXTirIP8d5qjJWFxgw1uygWAsw";
 export class MainOfficeService {
 
   private sendingStrategy: SendingStrategy;
+  private limitAlert: EventEmitter;
 
   constructor(private readonly warehouseService: WarehouseService) {
       this.warehouseService = warehouseService;
       this.sendingStrategy = new OntimeStrategy(warehouseService);
+      this.limitAlert = new EventEmitter();
+
+      this.limitAlert.on('limitReached', function() {
+        //TODO: choose a better approach to set strategy
+        if(this.sendingStrategy instanceof DelayedStrategy) {
+          this.strategy(new OntimeStrategy(warehouseService));
+        } else {
+          this.strategy(new DelayedStrategy(warehouseService));  
+        }  
+      });
   }
 
   set strategy(newStrategy: SendingStrategy) {

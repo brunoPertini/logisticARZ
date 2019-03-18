@@ -4,6 +4,8 @@ import { Warehouse } from './warehouse.entity';
 import { Package } from '../package/package.entity';
 import { City } from "src/city/city.entity";
 import { PackageResponseDTO, PackageOnTimeSent, PackageDelayedSent } from "src/package/package_response.dto";
+import { EventEmitter } from "events";
+import { PackageService } from "src/package/package.service";
 
 
 @Injectable()
@@ -19,8 +21,12 @@ export class WarehouseService {
 
     private repository: Repository<Warehouse>;
 
-    constructor(private readonly connection: Connection) {
+    private limitAlert: EventEmitter;
+
+    constructor(private readonly connection: Connection,
+                private readonly packageService: PackageService) {
         this.repository = connection.getRepository(Warehouse);
+        this.limitAlert = new EventEmitter();
     }
 
     async warehouse_of_city(cityName:string) {
@@ -63,22 +69,17 @@ export class WarehouseService {
         return cities;
     }
 
+
     /**
-     * Inserts a new package into database, associated with a warehouse.
+     * Increments by one the procesed packages amount of the given warehouse
+     * @param id
      */
-    private async send_package_from_warehouse(destiny: string, warehouse: Warehouse) {
-        await this.repository
+    private async update_procesed_packages(id:string) {
+        await this.connection
         .createQueryBuilder()
-        .insert()
-        .into(Package)
-        .values(
-           [{
-               arrival_date:new Date(),
-               delivered:false,
-               destiny: new City(destiny),
-               warehouse:warehouse
-            }]
-        )
+        .update(Warehouse)
+        .set({procesed_packages: () => "'procesed_packages' + 1"})
+        .where("id = :id", { id: id })
         .execute();
     }
 
@@ -107,7 +108,14 @@ export class WarehouseService {
 
             }
             
-            this.send_package_from_warehouse(destiny,warehouse);
+            this.packageService.send_package_from_warehouse(destiny,warehouse);
+            this.update_procesed_packages(warehouse.id);
+
+            this.warehouse_state(warehouse.id).then(percentage => {
+                if(percentage >= 0.05) {
+                    this.limitAlert.emit('limitReached');
+                }
+            })
         });
 
         return response;
