@@ -6,12 +6,19 @@ import { EventEmitter } from 'events';
 
 const apiKey = "AIzaSyByN4uVJHXTirIP8d5qjJWFxgw1uygWAsw";
 
+ //TODO: get this from database
+const origins = ['Buenos Aires','Rosario', 'Córdoba, Argentina',
+'Trelew', 'Mendoza', 'La Plata', 'San Miguel de Tucumán', 'Mar del Plata',
+'Salta', 'Santa Fe, Argentina'];
+
 @Injectable()
 @Dependencies(WarehouseService)
 export class MainOfficeService {
 
   private sendingStrategy: SendingStrategy;
   private limitAlert: EventEmitter;
+  //Each warehouse city with it's distance to a certain destiny
+  private warehouses: any;
 
   constructor(private readonly warehouseService: WarehouseService) {
       this.warehouseService = warehouseService;
@@ -47,67 +54,65 @@ export class MainOfficeService {
       return this.warehouseService.warehouses_cities();
   }
 
+  private onMatrix(err, distances) {
+    var auxArray = [];
+    var sortedDistances = [];
+    var resultArray=[];
+    var results;
+
+    if (!err && distances.status == 'OK') {
+      //If no error, for each origin it's distance to the destiny is stored in auxArray
+      results = distances['rows'].map(d => d['elements']);
+      var mappedDistances = results.map(r=>r[0]['distance']);
+      for(var i=0;i<origins.length;++i){
+          auxArray[origins[i]] = mappedDistances[i]['value']; 
+          sortedDistances.push(mappedDistances[i]['value']);
+      }
+
+      //Once all distances are taken, they're sorted ascending, and finally associated to it's city
+      sortedDistances.sort(function(a, b){return a-b});
+      var i = 0;
+      while (i < 10) {
+          Object.keys(auxArray).forEach(key => {
+              if(auxArray[key] == sortedDistances[i]) {    
+                  resultArray.push( {
+                      city: key,
+                      distance: Math.floor(sortedDistances[i]/1000)
+                  });
+
+                  i = i + 1;
+              }
+          });     
+      }   
+    }
+      console.log('INSIDE FUNCTION: '+JSON.stringify(resultArray));
+      return resultArray;
+  }
+
+
   /**
    * FIXME: as this is returning an empty array as result, despite inside matrix callback function the
    * result array has the expected data, this array will return mocked data.
    * @param cityName 
    * @returns a list of the closest warehouses cities to the given city, each one with it's distance in kilometers.
    */
-  async closests_warehouses_for_city(cityName:string) {
+  async closests_warehouses_for_city(cityName:string){
     var distance = require('google-distance-matrix');
-    //TODO: get this from database 
-    var origins = ['Buenos Aires','Rosario', 'Córdoba, Argentina',
-    'Trelew', 'Mendoza', 'La Plata', 'San Miguel de Tucumán', 'Mar del Plata',
-    'Salta', 'Santa Fe, Argentina'];
-
     distance.key(apiKey);
-    var auxArray = [];
-    var sortedDistances = [];
-    var resultArray=[];
-    var results;
-
-    // distance.matrix(origins, [cityName] , function (err, distances) {
-    //     if (!err) {
-    //         //If no error, for each origin it's distance to the destiny is stored in auxArray
-    //         results = distances['rows'].map(d => d['elements']);
-    //         var mappedDistances = results.map(r=>r[0]['distance']);
-    //         for(var i=0;i<origins.length;++i){
-    //             auxArray[origins[i]] = mappedDistances[i]['value']; 
-    //             sortedDistances.push(mappedDistances[i]['value']);
-    //         }
+    return await distance.matrix(origins, [cityName], this.onMatrix);
     
-    //         //Once all distances are taken, they're sorted ascending, and finally associated to it's city
-    //         sortedDistances.sort(function(a, b){return a-b});
-    //         var i = 0;
-    //         while (i < 10) {
-    //             Object.keys(auxArray).forEach(key => {
-    //                 if(auxArray[key] == sortedDistances[i]) {    
-    //                     resultArray.push( {
-    //                         city: key,
-    //                         distance: Math.floor(sortedDistances[i]/1000)
-    //                     });
-    
-    //                     i = i + 1;
-    //                 }
-    //             });     
-    //         }
-    //         console.log(JSON.stringify(resultArray));   
-    //     }
-    // });
-    
-    resultArray = [
-        {"cityName":"Salta","distance":196},
-        {"cityName":"San Miguel de Tucumán","distance":228},
-        {"cityName":"Córdoba, Argentina","distance":705.},
-        {"cityName":"Santa Fe, Argentina","distance":950},
-        {"cityName":"Mendoza","distance":1064},
-        {"cityName":"Rosario","distance":1102},
-        {"cityName":"Buenos Aires","distance":1393},
-        {"cityName":"La Plata","distance":1451},
-        {"cityName":"Mar del Plata","distance":1805},
-        {"cityName":"Trelew","distance":2148}
-    ];
-    return resultArray;
+    // resultArray = [
+    //     {"cityName":"Salta","distance":196},
+    //     {"cityName":"San Miguel de Tucumán","distance":228},
+    //     {"cityName":"Córdoba, Argentina","distance":705.},
+    //     {"cityName":"Santa Fe, Argentina","distance":950},
+    //     {"cityName":"Mendoza","distance":1064},
+    //     {"cityName":"Rosario","distance":1102},
+    //     {"cityName":"Buenos Aires","distance":1393},
+    //     {"cityName":"La Plata","distance":1451},
+    //     {"cityName":"Mar del Plata","distance":1805},
+    //     {"cityName":"Trelew","distance":2148}
+    // ];
   }
 
   async send_package_to_city(destiny: string) {
