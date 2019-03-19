@@ -81,9 +81,7 @@ export class MainOfficeService {
     //         var i = 0;
     //         while (i < 10) {
     //             Object.keys(auxArray).forEach(key => {
-    //                 if(auxArray[key] == sortedDistances[i]) {
-    //                     //console.log('key: '+ key+' , distance: '+ sortedDistances[i]);
-    
+    //                 if(auxArray[key] == sortedDistances[i]) {    
     //                     resultArray.push( {
     //                         city: key,
     //                         distance: Math.floor(sortedDistances[i]/1000)
@@ -92,8 +90,8 @@ export class MainOfficeService {
     //                     i = i + 1;
     //                 }
     //             });     
-    //         }   
-    //         return resultArray;
+    //         }
+    //         console.log(JSON.stringify(resultArray));   
     //     }
     // });
     
