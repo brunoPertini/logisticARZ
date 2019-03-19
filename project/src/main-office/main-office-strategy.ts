@@ -17,7 +17,7 @@ export abstract class SendingStrategy {
      * @param warehouses closest warehouses cities to the destiny with their distance
      * @param destiny destiny city name
      */
-    abstract send_package_from_nearest(warehouses: Array<any>, destiny: string)
+    abstract send_package_from_nearest(warehouses, destiny: string)
     : PackageResponseDTO;
 }
 

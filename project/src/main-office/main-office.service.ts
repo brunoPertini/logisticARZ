@@ -96,10 +96,10 @@ export class MainOfficeService {
    * @param cityName 
    * @returns a list of the closest warehouses cities to the given city, each one with it's distance in kilometers.
    */
-  async closests_warehouses_for_city(cityName:string){
+   closests_warehouses_for_city(cityName:string){
     var distance = require('google-distance-matrix');
     distance.key(apiKey);
-    return await distance.matrix(origins, [cityName], this.onMatrix);
+    return  distance.matrix(origins, [cityName], this.onMatrix);
     
     // resultArray = [
     //     {"cityName":"Salta","distance":196},
