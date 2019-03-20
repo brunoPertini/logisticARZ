@@ -31,7 +31,7 @@ export class WarehouseService {
 
     async warehouse_of_city(cityName:string) {
         return  this.repository.createQueryBuilder("warehouse")
-               .where("warehouse.city.name = :name", { name: cityName })
+               .where("warehouse.cityName = :name", { name: cityName })
                .getOne();
     }
 

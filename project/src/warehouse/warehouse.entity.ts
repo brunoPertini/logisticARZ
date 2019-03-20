@@ -11,6 +11,9 @@ export class Warehouse {
   @JoinColumn()
   city: City;
 
+  @Column()
+  cityName: string;
+
   /**
    * processing limit per warehouse
    */

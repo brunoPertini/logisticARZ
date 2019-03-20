@@ -1,5 +1,6 @@
 import { PackageResponseDTO } from '../package/package_response.dto';
 import { WarehouseService } from 'src/warehouse/warehouse.service';
+import { async } from 'rxjs/internal/scheduler/async';
 
 /**
  * Main office's strategy to send packages to customers, from warehouses.
@@ -17,8 +18,7 @@ export abstract class SendingStrategy {
      * @param warehouses closest warehouses cities to the destiny with their distance
      * @param destiny destiny city name
      */
-    abstract send_package_from_nearest(warehouses, destiny: string)
-    : PackageResponseDTO;
+    abstract send_package_from_nearest(warehouses, destiny: string);
 }
 
 
@@ -39,17 +39,30 @@ export class DelayedStrategy extends SendingStrategy {
  * At this implementation, package will be sent from the first nearest not overloaded warehouse. 
  */
 export class OntimeStrategy extends SendingStrategy {
-    send_package_from_nearest(warehouses: Array<any>, destiny: string) 
-    : PackageResponseDTO{
-        warehouses.forEach(w => {
-            this.warehouseService.warehouse_of_city(w).then (warehouse => {
-                var overloaded = this.warehouseService.warehouse_overloaded(warehouse.id);
-                if(!overloaded) {
-                    return this.warehouseService.perform_package_sending(w.cityName,
-                        destiny,w.distance);
-                }   
-            });
-        });         
-        return null
+    /**
+     * Receives an array of warehouses cities and returns those that are not overloaded
+     */
+    private async  getNotOverloaded(warehouses: Array<any>) {
+        var notOverloaded = [];
+        
+        for(var i=0; i< warehouses.length;++i) {
+            var warehouse = await this.warehouseService.warehouse_of_city(warehouses[i].cityName);
+            var overloaded = await this.warehouseService.warehouse_overloaded(warehouse.id);
+            if(!overloaded) {
+                notOverloaded.push(warehouses[i]);        
+            }         
+        }
+        return notOverloaded;    
+    }
+
+    async send_package_from_nearest(warehouses: Array<any>, destiny: string) {       
+        var notOverloaded = await this.getNotOverloaded(warehouses);
+        if(!!notOverloaded[0]) {
+            return this.warehouseService.perform_package_sending(notOverloaded[0].cityName,
+                destiny,notOverloaded[0].distance);    
+        } else {
+            console.log('RETURNING NULL');
+            return null;
+        }
     }    
 }

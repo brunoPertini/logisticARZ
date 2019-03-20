@@ -101,16 +101,16 @@ export class MainOfficeService {
     //   });
      
     var resultArray = [
-        {"cityName":"Salta","distance":196},
-        {"cityName":"San Miguel de Tucumán","distance":228},
-        {"cityName":"Córdoba, Argentina","distance":705.},
-        {"cityName":"Santa Fe, Argentina","distance":950},
-        {"cityName":"Mendoza","distance":1064},
-        {"cityName":"Rosario","distance":1102},
-        {"cityName":"Buenos Aires","distance":1393},
-        {"cityName":"La Plata","distance":1451},
-        {"cityName":"Mar del Plata","distance":1805},
-        {"cityName":"Trelew","distance":2148}
+        {cityName:"Salta",distance:196},
+        {cityName:"San Miguel de Tucumán",distance:228},
+        {cityName:"Córdoba",distance:705.},
+        {cityName:"Santa Fe",distance:950},
+        {cityName:"Mendoza",distance:1064},
+        {cityName:"Rosario",distance:1102},
+        {cityName:"Buenos Aires",distance:1393},
+        {cityName:"La Plata",distance:1451},
+        {cityName:"Mar del Plata",distance:1805},
+        {cityName:"Trelew",distance:2148}
     ];
 
     return resultArray;

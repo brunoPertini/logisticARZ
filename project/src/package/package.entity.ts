@@ -17,6 +17,12 @@ export class Package {
   @JoinColumn()
   destiny: City;
 
+  @Column()
+  destinyName: string;
+
+  @Column()
+  warehouseId: number;
+
   @ManyToOne(type => Warehouse, warehouse => warehouse.packages)
   warehouse: Warehouse;
 }
