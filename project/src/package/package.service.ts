@@ -17,7 +17,7 @@ export class PackageService{
   /**
    * Inserts a new package into database, associated with a warehouse.
    */
-  async send_package_from_warehouse(destiny: string, warehouse: Warehouse) {
+  async send_package_from_warehouse(city: string, warehouse: Warehouse) {
     await this.repository
     .createQueryBuilder()
     .insert()
@@ -26,8 +26,8 @@ export class PackageService{
         [{
             arrival_date:new Date(),
             delivered:false,
-            destiny: new City(destiny),
-            warehouse:warehouse
+            city:city,
+            warehouse:warehouse,
         }]
     )
     .execute();

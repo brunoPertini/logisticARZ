@@ -7,12 +7,12 @@ export class Warehouse {
   @PrimaryColumn()
   id: string;
 
+  @Column({ name: "cityName" })
+  cityName: string;
+
   @OneToOne(type => City)
   @JoinColumn()
   city: City;
-
-  @Column()
-  cityName: string;
 
   /**
    * processing limit per warehouse

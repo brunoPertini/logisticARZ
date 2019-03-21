@@ -10,8 +10,8 @@ export class MainOfficeController {
     }
     
     @Post()
-    send_package_to_city(@Body()city: string): PackageResponseDTO {
-      return this.officeService.send_package_to_city(city);
+    send_package_to_city(@Body()city: any): PackageResponseDTO {
+      return this.officeService.send_package_to_city(city.city);
     }
 
     @Get('warehouse/distance/:cityName')

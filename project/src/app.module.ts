@@ -23,6 +23,7 @@ import { Package } from './package/package.entity';
       database: "logistic",
       entities: ["src/**/**.entity{.ts,.js}"],
       synchronize: true,
+      logging: true,
     }
   ), WarehouseModule, PackageModule, CityModule,
             MainOfficeModule],
@@ -40,16 +41,16 @@ export class AppModule {
      .into(Warehouse)
      .values(
        [
-         {id:"WH01", cityName: cities[0], limit:200},
-         {id:"WH02", cityName: cities[1], limit:70},
-         {id:"WH03", cityName: cities[2], limit:150},
-         {id:"WH04", cityName: cities[3], limit:140},
-         {id:"WH05", cityName: cities[4], limit:150},
-         {id:"WH06", cityName: cities[5], limit:100},
-         {id:"WH07", cityName: cities[6], limit:120},
-         {id:"WH08", cityName: cities[7], limit:180},
-         {id:"WH09", cityName: cities[8], limit:140},
-         {id:"WH10", cityName: cities[9], limit:70},
+         {id:"WH01", city: cities[0], limit:200},
+         {id:"WH02", city: cities[1], limit:70},
+         {id:"WH03", city: cities[2], limit:150},
+         {id:"WH04", city: cities[3], limit:140},
+         {id:"WH05", city: cities[4], limit:150},
+         {id:"WH06", city: cities[5], limit:100},
+         {id:"WH07", city: cities[6], limit:120},
+         {id:"WH08", city: cities[7], limit:180},
+         {id:"WH09", city: cities[8], limit:140},
+         {id:"WH10", city: cities[9], limit:70},
        ]
      )
      .execute();

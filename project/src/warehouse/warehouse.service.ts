@@ -6,6 +6,7 @@ import { City } from "src/city/city.entity";
 import { PackageResponseDTO, PackageOnTimeSent, PackageDelayedSent } from "src/package/package_response.dto";
 import { EventEmitter } from "events";
 import { PackageService } from "src/package/package.service";
+import { CityService } from "../city/city.service";
 
 
 @Injectable()
@@ -24,14 +25,15 @@ export class WarehouseService {
     private limitAlert: EventEmitter;
 
     constructor(private readonly connection: Connection,
-                private readonly packageService: PackageService) {
+                private readonly packageService: PackageService,
+                private readonly cityService: CityService) {
         this.repository = connection.getRepository(Warehouse);
         this.limitAlert = new EventEmitter();
     }
 
     async warehouse_of_city(cityName:string) {
         return  this.repository.createQueryBuilder("warehouse")
-               .where("warehouse.cityName = :name", { name: cityName })
+               .where("warehouse.city = :name", { name: cityName })
                .getOne();
     }
 
@@ -64,7 +66,7 @@ export class WarehouseService {
     async warehouses_cities() {
         var cities = await this.repository
         .createQueryBuilder("w")
-        .select("w.cityName")
+        .select("w.city")
         .getRawMany();
         return cities;
     }
@@ -78,7 +80,7 @@ export class WarehouseService {
         await this.connection
         .createQueryBuilder()
         .update(Warehouse)
-        .set({procesed_packages: () => "'procesed_packages' + 1"})
+        .set({procesed_packages: () => "procesed_packages + 1"})
         .where("id = :id", { id: id })
         .execute();
     }
@@ -108,8 +110,11 @@ export class WarehouseService {
 
             }
             
-            this.packageService.send_package_from_warehouse(destiny,warehouse);
-            this.update_procesed_packages(warehouse.id);
+            //this.cityService.create_city(destiny).then (result => {
+                this.packageService.send_package_from_warehouse(destiny,warehouse);
+                this.update_procesed_packages(warehouse.id);    
+            //});
+            
 
             this.warehouse_state(warehouse.id).then(percentage => {
                 if(percentage >= 0.05) {

@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, ManyToOne } from 'typeorm';
 import { City } from '../city/city.entity';
 import { Warehouse } from '../warehouse/warehouse.entity';
+import { type } from 'os';
 
 @Entity()
 export class Package {
@@ -13,15 +14,8 @@ export class Package {
   @Column()
   delivered: boolean;
 
-  @OneToOne(type => City)
-  @JoinColumn()
-  destiny: City;
-
   @Column()
-  destinyName: string;
-
-  @Column()
-  warehouseId: number;
+  city: string;
 
   @ManyToOne(type => Warehouse, warehouse => warehouse.packages)
   warehouse: Warehouse;
