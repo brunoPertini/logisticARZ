@@ -57,6 +57,8 @@ export class OntimeStrategy extends SendingStrategy {
 
     async send_package_from_nearest(warehouses: Array<any>, destiny: string) {       
         var notOverloaded = await this.getNotOverloaded(warehouses);
+
+        console.log('NOT OVERLOADED: '+ JSON.stringify(notOverloaded));
         if(!!notOverloaded[0]) {
             return this.warehouseService.perform_package_sending(notOverloaded[0].cityName,
                 destiny,notOverloaded[0].distance);    

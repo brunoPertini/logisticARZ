@@ -7,6 +7,7 @@ import { PackageResponseDTO, PackageOnTimeSent, PackageDelayedSent } from "src/p
 import { EventEmitter } from "events";
 import { PackageService } from "src/package/package.service";
 import { CityService } from "../city/city.service";
+import { MainOfficeService } from "src/main-office/main-office.service";
 
 
 @Injectable()
@@ -22,13 +23,10 @@ export class WarehouseService {
 
     private repository: Repository<Warehouse>;
 
-    private limitAlert: EventEmitter;
-
     constructor(private readonly connection: Connection,
                 private readonly packageService: PackageService,
                 private readonly cityService: CityService) {
         this.repository = connection.getRepository(Warehouse);
-        this.limitAlert = new EventEmitter();
     }
 
     async warehouse_of_city(cityName:string) {
@@ -45,7 +43,9 @@ export class WarehouseService {
     async warehouse_state(id:string) {
         const warehouse = await this.repository.findOne(id);
         if(warehouse) {
-            return warehouse.procesed_packages/warehouse.limit;
+            var percentage = (warehouse.procesed_packages*100)/warehouse.limit;
+            console.log('percentage: '+ percentage);
+            return percentage;
         } else {
             return 0;
         }
@@ -117,9 +117,9 @@ export class WarehouseService {
             
 
             this.warehouse_state(warehouse.id).then(percentage => {
-                if(percentage >= 0.95) {
+                if(percentage >= 95) {
                     console.log('TRIGGERING ALERT');
-                    this.limitAlert.emit('limitReached',"ALEEEEERT");
+                    MainOfficeService.changeStrategy(this);
                 }
             })
         });

@@ -1,6 +1,5 @@
 import { Injectable, Dependencies } from '@nestjs/common';
 import { WarehouseService } from '../warehouse/warehouse.service';
-import { strict } from 'assert';
 import { OntimeStrategy, SendingStrategy, DelayedStrategy } from './main-office-strategy';
 import { EventEmitter } from 'events';
 
@@ -12,48 +11,29 @@ const origins = ['Buenos Aires','Rosario', 'Córdoba, Argentina',
 'Trelew', 'Mendoza', 'La Plata', 'San Miguel de Tucumán', 'Mar del Plata',
 'Salta', 'Santa Fe, Argentina'];
 
-
-const listener = function(message) {
-  //TODO: choose a better approach to set strategy
-  console.log('LIMIT REACHED: '+ message);
-  if(this.sendingStrategy instanceof DelayedStrategy) {
-    this.strategy(new OntimeStrategy(this.warehouseService));
-  } else {
-    this.strategy(new DelayedStrategy(this.warehouseService));  
-  }    
-}
-
 @Injectable()
 @Dependencies(WarehouseService)
 export class MainOfficeService {
 
-  private sendingStrategy: SendingStrategy;
   private limitAlert: EventEmitter;
   //Each warehouse city with it's distance to a certain destiny
   private warehouses: any;
+  private static sendingStrategy;
 
   constructor(private readonly warehouseService: WarehouseService) {
       this.warehouseService = warehouseService;
-      this.sendingStrategy = new OntimeStrategy(warehouseService);
-      this.limitAlert = new EventEmitter();
-      this.limitAlert.addListener('limitReached', listener);
+      MainOfficeService.sendingStrategy= new OntimeStrategy(warehouseService);
   }
 
   
 
   strategy(newStrategy: SendingStrategy) {
-    this.sendingStrategy = newStrategy;
+    MainOfficeService.sendingStrategy = newStrategy;
   }
 
-  /**
-   * 
-   * @param id
-   * @returns if the percentage of procesed packages is greater or equal than 0.95
-   */  
-  warehouse_overloaded(id:string) {
-    return this.warehouseService.warehouse_state(id). then (result => {
-        return result >=100;
-    });  
+   
+  async warehouse_overloaded(id:string) {
+    return await this.warehouseService.warehouse_overloaded(id);
   }
 
   warehouses_cities() {
@@ -125,6 +105,20 @@ export class MainOfficeService {
 
   async send_package_to_city(destiny: string) {
     var warehousesCities = await this.closests_warehouses_for_city(destiny);
-    return this.sendingStrategy.send_package_from_nearest(warehousesCities,destiny);
+    return MainOfficeService.sendingStrategy.send_package_from_nearest(warehousesCities,destiny);
+  }
+
+  /**
+   * Just makes a swap between the two strategies. Note: before I tried to
+   * use an event emitter, and then just relations between office service and
+   * warehouse service, but I  could never make it work like that.
+   */
+  static changeStrategy(warehouseService: WarehouseService) {
+    console.log('LIMIT REACHED');
+    if(MainOfficeService.sendingStrategy instanceof DelayedStrategy) {
+      MainOfficeService.sendingStrategy = new OntimeStrategy(warehouseService);
+    } else {
+      MainOfficeService.sendingStrategy = new DelayedStrategy(warehouseService);  
+    }      
   }
 }

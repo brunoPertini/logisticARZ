@@ -23,7 +23,7 @@ import { Package } from './package/package.entity';
       database: "logistic",
       entities: ["src/**/**.entity{.ts,.js}"],
       synchronize: true,
-      logging: true,
+      logging: false,
     }
   ), WarehouseModule, PackageModule, CityModule,
             MainOfficeModule],
