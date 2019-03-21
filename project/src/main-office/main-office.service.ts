@@ -105,7 +105,7 @@ export class MainOfficeService {
 
   async send_package_to_city(destiny: string) {
     var warehousesCities = await this.closests_warehouses_for_city(destiny);
-    return MainOfficeService.sendingStrategy.send_package_from_nearest(warehousesCities,destiny);
+    return await MainOfficeService.sendingStrategy.send_package_from_nearest(warehousesCities,destiny);
   }
 
   /**

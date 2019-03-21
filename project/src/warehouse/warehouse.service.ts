@@ -94,36 +94,35 @@ export class WarehouseService {
     async perform_package_sending(warehouse_city: string, destiny: string, distance: number) {
         const warehouse = await this.warehouse_of_city(warehouse_city);
         var response: PackageResponseDTO;
+        var percentage = await this.warehouse_state(warehouse.id);
+        //delivered_date computing
+        var delivered_date = new Date();
+        var added_days = Math.floor(distance/WarehouseService.KILOMETERS_PER_DAY);
+        delivered_date.setDate(delivered_date.getDate()+added_days);
+
+        if(percentage < 100) {
+            var price = Math.floor(distance/WarehouseService.KILOMETERS_PER_DOLAR);
+            response = new PackageOnTimeSent(delivered_date,price);
+        } else {
+            //Overloaded warehouse, delivered date is delayed 1 day
+            delivered_date.setDate(delivered_date.getDate()+1);
+            response = new PackageDelayedSent(delivered_date,WarehouseService.LATE_PENALTY);
+        }
+        
+        //this.cityService.create_city(destiny).then (result => {
+            await this.packageService.send_package_from_warehouse(destiny,warehouse);
+            await this.update_procesed_packages(warehouse.id);    
+        //});
+        
+
         this.warehouse_state(warehouse.id).then(percentage => {
-            //delivered_date computing
-            var delivered_date = new Date();
-            var added_days = Math.floor(distance/WarehouseService.KILOMETERS_PER_DAY);
-            delivered_date.setDate(delivered_date.getDate()+added_days);
-
-            if(percentage < 100) {
-                var price = Math.floor(distance/WarehouseService.KILOMETERS_PER_DOLAR);
-                response = new PackageOnTimeSent(delivered_date,price);
-            } else {
-                //Overloaded warehouse, delivered date is delayed 1 day
-                delivered_date.setDate(delivered_date.getDate()+1);
-                response = new PackageDelayedSent(delivered_date,WarehouseService.LATE_PENALTY);
-
+            if(percentage >= 95) {
+                console.log('TRIGGERING ALERT');
+                MainOfficeService.changeStrategy(this);
             }
-            
-            //this.cityService.create_city(destiny).then (result => {
-                this.packageService.send_package_from_warehouse(destiny,warehouse);
-                this.update_procesed_packages(warehouse.id);    
-            //});
-            
+        })
 
-            this.warehouse_state(warehouse.id).then(percentage => {
-                if(percentage >= 95) {
-                    console.log('TRIGGERING ALERT');
-                    MainOfficeService.changeStrategy(this);
-                }
-            })
-        });
-
+        console.log('FINAL RESPONSE: '+ JSON.stringify(response));
         return response;
     }
 }

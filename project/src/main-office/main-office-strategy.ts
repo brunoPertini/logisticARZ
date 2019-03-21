@@ -18,7 +18,7 @@ export abstract class SendingStrategy {
      * @param warehouses closest warehouses cities to the destiny with their distance
      * @param destiny destiny city name
      */
-    abstract send_package_from_nearest(warehouses, destiny: string);
+    abstract async send_package_from_nearest(warehouses, destiny: string);
 }
 
 
@@ -27,9 +27,8 @@ export abstract class SendingStrategy {
  * it is overloaded.
  */
 export class DelayedStrategy extends SendingStrategy {
-    send_package_from_nearest(warehouses: Array<any>, destiny: string) 
-    : PackageResponseDTO{
-        return this.warehouseService.perform_package_sending(warehouses[0].cityName,destiny,
+    async send_package_from_nearest(warehouses: Array<any>, destiny: string) {
+        return await this.warehouseService.perform_package_sending(warehouses[0].cityName,destiny,
             warehouses[0].distance);   
     }
 }
@@ -60,7 +59,7 @@ export class OntimeStrategy extends SendingStrategy {
 
         console.log('NOT OVERLOADED: '+ JSON.stringify(notOverloaded));
         if(!!notOverloaded[0]) {
-            return this.warehouseService.perform_package_sending(notOverloaded[0].cityName,
+            return await this.warehouseService.perform_package_sending(notOverloaded[0].cityName,
                 destiny,notOverloaded[0].distance);    
         } else {
             console.log('RETURNING NULL');
