@@ -117,8 +117,9 @@ export class WarehouseService {
             
 
             this.warehouse_state(warehouse.id).then(percentage => {
-                if(percentage >= 0.05) {
-                    this.limitAlert.emit('limitReached');
+                if(percentage >= 0.95) {
+                    console.log('TRIGGERING ALERT');
+                    this.limitAlert.emit('limitReached',"ALEEEEERT");
                 }
             })
         });

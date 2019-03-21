@@ -6,10 +6,22 @@ import { EventEmitter } from 'events';
 
 const apiKey = "AIzaSyByN4uVJHXTirIP8d5qjJWFxgw1uygWAsw";
 
+
  //TODO: get this from database
 const origins = ['Buenos Aires','Rosario', 'Córdoba, Argentina',
 'Trelew', 'Mendoza', 'La Plata', 'San Miguel de Tucumán', 'Mar del Plata',
 'Salta', 'Santa Fe, Argentina'];
+
+
+const listener = function(message) {
+  //TODO: choose a better approach to set strategy
+  console.log('LIMIT REACHED: '+ message);
+  if(this.sendingStrategy instanceof DelayedStrategy) {
+    this.strategy(new OntimeStrategy(this.warehouseService));
+  } else {
+    this.strategy(new DelayedStrategy(this.warehouseService));  
+  }    
+}
 
 @Injectable()
 @Dependencies(WarehouseService)
@@ -24,18 +36,12 @@ export class MainOfficeService {
       this.warehouseService = warehouseService;
       this.sendingStrategy = new OntimeStrategy(warehouseService);
       this.limitAlert = new EventEmitter();
-
-      this.limitAlert.on('limitReached', function() {
-        //TODO: choose a better approach to set strategy
-        if(this.sendingStrategy instanceof DelayedStrategy) {
-          this.strategy(new OntimeStrategy(warehouseService));
-        } else {
-          this.strategy(new DelayedStrategy(warehouseService));  
-        }  
-      });
+      this.limitAlert.addListener('limitReached', listener);
   }
 
-  set strategy(newStrategy: SendingStrategy) {
+  
+
+  strategy(newStrategy: SendingStrategy) {
     this.sendingStrategy = newStrategy;
   }
 
