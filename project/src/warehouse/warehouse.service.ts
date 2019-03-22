@@ -1,10 +1,7 @@
 import { Injectable, Dependencies } from "@nestjs/common";
 import { Repository, Connection } from 'typeorm';
 import { Warehouse } from './warehouse.entity';
-import { Package } from '../package/package.entity';
-import { City } from "src/city/city.entity";
 import { PackageResponseDTO, PackageOnTimeSent, PackageDelayedSent } from "src/package/package_response.dto";
-import { EventEmitter } from "events";
 import { PackageService } from "src/package/package.service";
 import { CityService } from "../city/city.service";
 import { MainOfficeService } from "src/main-office/main-office.service";
@@ -109,10 +106,8 @@ export class WarehouseService {
             response = new PackageDelayedSent(delivered_date,WarehouseService.LATE_PENALTY);
         }
         
-        //this.cityService.create_city(destiny).then (result => {
-            await this.packageService.send_package_from_warehouse(destiny,warehouse);
-            await this.update_procesed_packages(warehouse.id);    
-        //});
+        await this.packageService.send_package_from_warehouse(destiny,warehouse);
+        await this.update_procesed_packages(warehouse.id);    
         
 
         this.warehouse_state(warehouse.id).then(percentage => {
@@ -122,7 +117,6 @@ export class WarehouseService {
             }
         })
 
-        console.log('FINAL RESPONSE: '+ JSON.stringify(response));
         return response;
     }
 }
